@@ -1,0 +1,163 @@
+.envelope {
+  position: relative;
+  width: 160px;
+  height: 100px;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+/* 봉투 본체 */
+.envelope-body {
+  position: absolute;
+  bottom: 0;
+  width: 160px;
+  height: 100px;
+  background: #E8899A;
+  border-radius: 0 0 8px 8px;
+  z-index: 3;
+}
+
+/* 봉투 본체 삼각형 장식 */
+.envelope-body::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  border-left: 80px solid #D47085;
+  border-right: 80px solid #D47085;
+  border-bottom: 50px solid transparent;
+  z-index: 1;
+}
+
+/* 뚜껑 (삼각형) */
+.envelope-flap {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  border-left: 80px solid transparent;
+  border-right: 80px solid transparent;
+  border-top: 60px solid #DC7F92;
+  z-index: 5;
+  transform-origin: top center;
+  transition: transform 0.5s ease;
+}
+
+/* 편지지 */
+.envelope-letter {
+  position: absolute;
+  top: 25px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 130px;
+  height: 45px;
+  background: #F9CED7;
+  border-radius: 4px;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  transition: transform 1s ease-out, height 1s ease-out, clip-path 0.8s ease;
+}
+
+.envelope-letter-line {
+  width: 80%;
+  height: 3px;
+  background: #eee;
+  border-radius: 2px;
+}
+
+.envelope-letter-line.short {
+  width: 50%;
+}
+
+/* overflow 제어 - 편지지 애니메이션 동안 visible 유지 */
+.envelope--overflow {
+  overflow: visible;
+}
+
+.envelope--flap-open .envelope-flap {
+  transform: rotateX(180deg);
+  z-index: 1;
+}
+
+.envelope--letter-out .envelope-letter {
+  height: 90px;
+  transform: translateX(-50%) translateY(-110px);
+}
+
+/* 퍼즐 모양 변환 */
+.envelope--puzzle .envelope-letter {
+  clip-path: polygon(
+    0% 0%,
+    35% 0%,
+    35% 5%,
+    40% 5%,
+    40% 0%,
+    42% 0%,
+    42% 8%,
+    45% 12%,
+    50% 14%,
+    55% 12%,
+    58% 8%,
+    58% 0%,
+    60% 0%,
+    60% 5%,
+    65% 5%,
+    65% 0%,
+    100% 0%,
+    100% 35%,
+    95% 35%,
+    95% 40%,
+    100% 40%,
+    100% 42%,
+    92% 42%,
+    88% 45%,
+    86% 50%,
+    88% 55%,
+    92% 58%,
+    100% 58%,
+    100% 60%,
+    95% 60%,
+    95% 65%,
+    100% 65%,
+    100% 100%,
+    65% 100%,
+    65% 95%,
+    60% 95%,
+    60% 100%,
+    58% 100%,
+    58% 92%,
+    55% 88%,
+    50% 86%,
+    45% 88%,
+    42% 92%,
+    42% 100%,
+    40% 100%,
+    40% 95%,
+    35% 95%,
+    35% 100%,
+    0% 100%,
+    0% 65%,
+    5% 65%,
+    5% 60%,
+    0% 60%,
+    0% 58%,
+    8% 58%,
+    12% 55%,
+    14% 50%,
+    12% 45%,
+    8% 42%,
+    0% 42%,
+    0% 40%,
+    5% 40%,
+    5% 35%,
+    0% 35%
+  );
+}

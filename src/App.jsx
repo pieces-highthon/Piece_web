@@ -10,7 +10,7 @@ import pieceLogo from "./assets/PIECE.png";
 import "./App.css";
 
 // 목데이터
-const mockUser = { name: "홍길동" };
+const mockUser = { name: "김진현" };
 
 function App() {
   const [screen, setScreen] = useState("intro"); // "intro" | "main" | "complete"

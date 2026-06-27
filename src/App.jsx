@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Routes, Route } from "react-router-dom";
 import Intro from "./components/Intro";
 import Envelope from "./components/Envelope";
@@ -18,23 +18,52 @@ function App() {
   const [showModal, setShowModal] = useState(false);
   // 편지 데이터를 저장하여 Complete 컴포넌트에 전달
   const [letterData, setLetterData] = useState(null);
+  const modalTimerRef = useRef(null);
+  const closeTimerRef = useRef(null);
+  const completeTimerRef = useRef(null);
+
+  const clearTimer = (timerRef) => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      clearTimer(modalTimerRef);
+      clearTimer(closeTimerRef);
+      clearTimer(completeTimerRef);
+    };
+  }, []);
 
   const handleEnvelopeClick = () => {
+    clearTimer(modalTimerRef);
     setIsOpen(true);
-    setTimeout(() => setShowModal(true), 800);
+    modalTimerRef.current = setTimeout(() => {
+      setShowModal(true);
+      modalTimerRef.current = null;
+    }, 800);
   };
 
   const handleClose = () => {
+    clearTimer(closeTimerRef);
     setShowModal(false);
-    setTimeout(() => setIsOpen(false), 100);
+    closeTimerRef.current = setTimeout(() => {
+      setIsOpen(false);
+      closeTimerRef.current = null;
+    }, 100);
   };
 
   const handleSubmit = (value) => {
-    console.log("입력값:", value);
+    clearTimer(completeTimerRef);
     setLetterData(value); // 편지 데이터 저장
     setShowModal(false);
     setIsOpen(false);
-    setScreen("complete");
+    completeTimerRef.current = setTimeout(() => {
+      setScreen("complete");
+      completeTimerRef.current = null;
+    }, 1700);
   };
 
   return (
@@ -50,10 +79,14 @@ function App() {
             )}
             {screen === "main" && (
               <>
-                {!isOpen && (
+                {!isOpen && !letterData && (
                   <p className="app-guide">{mockUser.name}님께 드릴 편지를 적어주세요 !</p>
                 )}
-                <Envelope isOpen={isOpen} hasContent={false} onClick={handleEnvelopeClick} />
+                <Envelope
+                  isOpen={isOpen}
+                  hasContent={Boolean(letterData)}
+                  onClick={letterData ? undefined : handleEnvelopeClick}
+                />
                 <InputModal
                   isOpen={showModal}
                   onClose={handleClose}

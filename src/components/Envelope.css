@@ -2,8 +2,11 @@
   position: relative;
   width: 160px;
   height: 100px;
-  cursor: pointer;
   overflow: hidden;
+}
+
+.envelope--clickable {
+  cursor: pointer;
 }
 
 /* 봉투 본체 */

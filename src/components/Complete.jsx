@@ -1,24 +1,39 @@
-import { useState, useEffect } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { loadTossPayments } from "@tosspayments/tosspayments-sdk";
 import logoPiece from "../assets/logopiece.svg";
 import "./Complete.css";
 
 // Vite 환경변수에서 클라이언트 키 로드
 const TOSS_CLIENT_KEY = import.meta.env.VITE_TOSS_CLIENT_KEY;
+const CONFETTI_COLORS = [
+  "#F9CED7", "#E17992", "#FFD700", "#87CEEB",
+  "#98FB98", "#DDA0DD", "#FFA07A",
+];
 
 function Complete({ userName, letterData }) {
+  const recipientName = letterData?.to || userName;
+  const initialSupportMessage = letterData?.message?.trim().slice(0, 50) || "";
   const [showButton, setShowButton] = useState(false);
   // ── 결제 폼 상태 ──
   const [showPaymentForm, setShowPaymentForm] = useState(false);
   const [amount, setAmount] = useState("");
-  const [supportMessage, setSupportMessage] = useState("");
+  const [supportMessage, setSupportMessage] = useState(initialSupportMessage);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-
-  const confettiColors = [
-    "#F9CED7", "#E17992", "#FFD700", "#87CEEB",
-    "#98FB98", "#DDA0DD", "#FFA07A",
-  ];
+  const confettiPieces = useMemo(
+    () =>
+      Array.from({ length: 40 }).map((_, i) => ({
+        id: i,
+        left: `${Math.random() * 100}%`,
+        backgroundColor: CONFETTI_COLORS[i % CONFETTI_COLORS.length],
+        animationDelay: `${Math.random() * 2}s`,
+        animationDuration: `${2 + Math.random() * 2}s`,
+        width: `${6 + Math.random() * 6}px`,
+        height: `${6 + Math.random() * 6}px`,
+        borderRadius: Math.random() > 0.5 ? "50%" : "2px",
+      })),
+    []
+  );
 
   useEffect(() => {
     const timer = setTimeout(() => setShowButton(true), 4000);
@@ -53,8 +68,13 @@ function Complete({ userName, letterData }) {
       setError("메시지는 50자 이내로 입력해주세요.");
       return;
     }
+    if (!TOSS_CLIENT_KEY) {
+      setError("토스페이먼츠 클라이언트 키가 설정되지 않았습니다.");
+      return;
+    }
 
     setIsLoading(true);
+    const trimmedSupportMessage = supportMessage.trim();
 
     try {
       // ── Step 1: 서버에 주문 생성 요청 ──
@@ -63,8 +83,8 @@ function Complete({ userName, letterData }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           amount: numAmount,
-          message: supportMessage.trim(),
-          senderName: letterData?.from || "익명",
+          message: trimmedSupportMessage,
+          senderName: letterData?.from?.trim() || "익명",
         }),
       });
 
@@ -83,7 +103,7 @@ function Complete({ userName, letterData }) {
         method: "CARD",
         amount: { currency: "KRW", value: numAmount },
         orderId: orderId,
-        orderName: `${userName}님에게 PIECE 후원`,
+        orderName: `${recipientName}님에게 PIECE 후원`,
         successUrl: `${window.location.origin}/payment/success`,
         failUrl: `${window.location.origin}/payment/fail`,
       });
@@ -100,25 +120,17 @@ function Complete({ userName, letterData }) {
     <div className="complete-screen">
       {/* ── 컨페티 애니메이션 ── */}
       <div className="confetti-container">
-        {Array.from({ length: 40 }).map((_, i) => (
+        {confettiPieces.map((piece) => (
           <div
-            key={i}
+            key={piece.id}
             className="confetti-piece"
-            style={{
-              left: `${Math.random() * 100}%`,
-              backgroundColor: confettiColors[i % confettiColors.length],
-              animationDelay: `${Math.random() * 2}s`,
-              animationDuration: `${2 + Math.random() * 2}s`,
-              width: `${6 + Math.random() * 6}px`,
-              height: `${6 + Math.random() * 6}px`,
-              borderRadius: Math.random() > 0.5 ? "50%" : "2px",
-            }}
+            style={piece}
           />
         ))}
       </div>
 
       <img src={logoPiece} alt="PIECE" className="complete-logo" />
-      <p className="complete-message">{userName}님께 PIECE를 전달드릴게요 !</p>
+      <p className="complete-message">{recipientName}님께 PIECE를 전달드릴게요 !</p>
 
       {/* ── 결제 폼 (결제하기 버튼 클릭 후 표시) ── */}
       {showPaymentForm && (

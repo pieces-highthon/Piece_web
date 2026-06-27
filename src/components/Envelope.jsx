@@ -6,6 +6,7 @@ function Envelope({ isOpen, hasContent, onClick }) {
   const [flapOpen, setFlapOpen] = useState(false);
   const [overflowVisible, setOverflowVisible] = useState(false);
   const [puzzleShape, setPuzzleShape] = useState(false);
+  const isClickable = Boolean(onClick) && !isOpen;
 
   useEffect(() => {
     if (isOpen) {
@@ -31,6 +32,7 @@ function Envelope({ isOpen, hasContent, onClick }) {
 
   const className = [
     "envelope",
+    isClickable ? "envelope--clickable" : "",
     flapOpen ? "envelope--flap-open" : "",
     letterOut ? "envelope--letter-out" : "",
     overflowVisible ? "envelope--overflow" : "",
@@ -40,7 +42,7 @@ function Envelope({ isOpen, hasContent, onClick }) {
     .join(" ");
 
   return (
-    <div className={className} onClick={!isOpen ? onClick : undefined}>
+    <div className={className} onClick={isClickable ? onClick : undefined}>
       <div className="envelope-flap" />
       <div className="envelope-letter">
         <div className="envelope-letter-line" />
